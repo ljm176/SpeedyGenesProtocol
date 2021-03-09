@@ -95,7 +95,7 @@ def run(protocol):
         tc_mod.open_lid()
     
 
-    p300Single.distribute(20, water, [dil_plate.wells()[i] for i in range(blocks[-1][-1] + 1)])
+    p300Single.distribute(14, water, [dil_plate.wells()[i] for i in range(blocks[-1][-1] + 1)])
 
     #add master mix to wells
     p300Single.pick_up_tip()
@@ -109,20 +109,55 @@ def run(protocol):
         p300Single.blow_out(src)
     p300Single.drop_tip()
 
+    def list_positions(ind):
+    	positions = []
+    	for i in blocks:
+    		positions.append(i[ind])
+    	positions = list(set(positions))
+    	return(positions)
 
 
 
+    b1_positions = list_positions(0)
+    b2_positions = list_positions(1)
 
-    def dilute_and_transfer(source_well, pcr_well):
+
+
+    def dilute_and_transfer_b1(pos):
     	p20Single.pick_up_tip()
-    	p20Single.transfer(5, block_plate.wells()[source_well], dil_plate.wells()[source_well], mix_after=(3, 20), new_tip="never")
-    	p20Single.transfer(5, dil_plate.wells()[source_well], OEpcr_rack.wells()[pcr_well], mix_after=(3, 20), new_tip="never")
+    	p20Single.transfer(7, block_plate.wells()[pos], dil_plate.wells()[pos], mix_after=(2, 20), new_tip="never")
+    	dests = []
+    	for i in range(len(blocks)):
+    		if blocks[i][0] == pos:
+    			dests.append(i)
+
+    	p20Single.distribute(1, dil_plate.wells()[pos], [OEpcr_rack.wells()[x] for x in dests], new_tip="never")
     	p20Single.drop_tip()
 
-    for i in range(len(blocks)):
-    	dilute_and_transfer(blocks[i][0], i)
-    	dilute_and_transfer(blocks[i][1], i)
 
+    def dilute_and_transfer_b2(pos):
+    	p20Single.pick_up_tip()
+    	p20Single.transfer(7, block_plate.wells()[pos], dil_plate.wells()[pos], mix_after=(2, 20), new_tip="never")
+    	dests = []
+    	for i in range(len(blocks)):
+    		if blocks[i][1] == pos:
+    			dests.append(i)
+
+    	p20Single.transfer(1, dil_plate.wells()[pos], OEpcr_rack.wells()[dests[0]], mix_after=(2, 20), new_tip="never")
+    	p20Single.drop_tip()
+
+    	for x in dests[1:len(dests)]:
+    			p20Single.transfer(1, dil_plate.wells()[pos], OEpcr_rack.wells()[x], mix_after=(2, 20))
+
+
+
+
+
+    for i in b1_positions:
+    	dilute_and_transfer_b1(i)
+
+    for i in b2_positions:
+    	dilute_and_transfer_b2(i)
 
 
     protocol.pause("Add PCR seal")
