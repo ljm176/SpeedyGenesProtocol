@@ -2,9 +2,10 @@ metadata = {
     'protocolName': 'SpeedyGenes Block Pooling',
     'author': 'Opentrons <protocols@opentrons.com>',
     'source': 'Protocol Library',
-    'apiLevel': '2.1'
+    'apiLevel': '2.8'
     }
 
+from math import ceil
 
 blocks = [[0, 2],
  [0, 3],
@@ -39,6 +40,8 @@ blocks = [[0, 2],
  [1, 16],
  [1, 17]]
 
+nCols = ceil(len(blocks)/8)
+
 #Set initial denaturing
 init_temp = 98
 init_time = 30 
@@ -57,10 +60,11 @@ e_time = 300
 
 
 
+
 def run(protocol):
 	    #Load Tips
-    tips20= [protocol.load_labware('opentrons_96_tiprack_20ul', '1')]
-    tips300 = [protocol.load_labware('opentrons_96_tiprack_300ul', '9')]
+    tips20= [protocol.load_labware('opentrons_96_tiprack_20ul', '6')]
+    tips300 = [protocol.load_labware('opentrons_96_tiprack_300ul', '3')]
 
     #Load Pipettes
     p20Single = protocol.load_instrument('p20_single_gen2', 'right', tip_racks=tips20)
@@ -71,7 +75,7 @@ def run(protocol):
     OEpcr_rack = tc_mod.load_labware('nest_96_wellplate_100ul_pcr_full_skirt', label="Thermocylcer")
 
     #Load temp_block
-    temp_block = protocol.load_module("tempdeck", 4)
+    temp_block = protocol.load_module("tempdeck", 1)
     temp_block.set_temperature(4)
 
     #Load Reagents
@@ -80,17 +84,34 @@ def run(protocol):
     mastermix = reagents["A1"]
     water = reagents["A2"]
 
-    dil_plate = protocol.load_labware("nest_96_wellplate_100ul_pcr_full_skirt", 3, label="Dilution Plate")
-    
-    p300Single.distribute(20, water, [dil_plate.wells()[i] for i in range(blocks[-1][-1])])
-    p300Single.distribute(15, mastermix, [OEpcr_rack.wells()[i] for i in range(len(blocks))])
-
-
-
-
-
     #Load fragment plates
     block_plate = protocol.load_labware("nest_96_wellplate_100ul_pcr_full_skirt", location=2, label="Blocks")
+
+
+    dil_plate = protocol.load_labware("nest_96_wellplate_100ul_pcr_full_skirt", 5, label="Dilution Plate")
+    
+
+    if tc_mod.lid_position != open:
+        tc_mod.open_lid()
+    
+
+    p300Single.distribute(20, water, [dil_plate.wells()[i] for i in range(blocks[-1][-1] + 1)])
+
+    #add master mix to wells
+    p300Single.pick_up_tip()
+    for c in range(nCols):
+        src=mastermix
+
+        p300Single.aspirate(150, src)
+        for w in range(8):
+            p300Single.dispense(15, OEpcr_rack.wells()[w+(c*8)])
+            p300Single.touch_tip()
+        p300Single.blow_out(src)
+    p300Single.drop_tip()
+
+
+
+
 
     def dilute_and_transfer(source_well, pcr_well):
     	p20Single.pick_up_tip()
@@ -103,8 +124,8 @@ def run(protocol):
     	dilute_and_transfer(blocks[i][1], i)
 
 
-    if tc_mod.lid_position != open:
-        tc_mod.open_lid()
+
+    protocol.pause("Add PCR seal")
 
 
 
@@ -113,7 +134,7 @@ def run(protocol):
 
     
     # Initial denaturing
-    tc_mod.set_block_temperature(init_temp, hold_time_seconds=init_time, block_max_volume=20)
+    tc_mod.set_block_temperature(init_temp, hold_time_seconds=init_time, block_max_volume=25)
                                  
     #Set Profile
     profile = [
@@ -122,18 +143,18 @@ def run(protocol):
         {'temperature': e_temp, 'hold_time_seconds': e_time}
     ]
 
-    tc_mod.execute_profile(steps=profile, repetitions=35, block_max_volume=20)
+    tc_mod.execute_profile(steps=profile, repetitions=35, block_max_volume=25)
 
     #Final extension
-    tc_mod.set_block_temperature(72, hold_time_seconds = 600)
+    tc_mod.set_block_temperature(72, hold_time_seconds = 600, block_max_volume=25)
 
     tc_mod.set_block_temperature(4)
 
     protocol.pause("Load Deepwell and A. Baylyi")
 
-    falconRack = protocol.load_labware("opentrons_6_tuberack_falcon_50ml_conical", location=6, label="Baylyi Rack")
+    falconRack = protocol.load_labware("opentrons_6_tuberack_falcon_50ml_conical", location=9, label="Baylyi Rack")
     baylyi = falconRack["A1"]
-    deepWell = protocol.load_labware("usascientific_96_wellplate_2.4ml_deep", location= 5, label="DeepWell")
+    deepWell = protocol.load_labware("usascientific_96_wellplate_2.4ml_deep", location= 4, label="DeepWell")
 
     
     protocol.comment("Transforming")
