@@ -54,7 +54,7 @@ for oligo_list in l:
         oligo_wells[-1].append(wells384[w])
         w+=1
 
-#Define blocks (6 and 7 oligos per block)
+#Define blocks (6 and 7 oligos per block) This might need to be modified.
 block1 = oligo_wells[0:6]
 block2 = oligo_wells[6:15]
 
@@ -88,15 +88,16 @@ ts = [[ "SrcWell"," DstWell", "Vol"]]
 for p, w in zip(b1pools + b2pools, wells96):
     ts = ts + get_pool_transfers(p, w)
 
+n_blocks = len(b1pools + b2pools)
 
 MM_ts = [[ "SrcWell"," DstWell", "Vol"]]
-for i in range(len(b1pools + b2pools)):
+for i in range(n_blocks):
     MM_ts = MM_ts + [["A1", wells96[i], 12500]]
-for i in range(len(b1pools + b2pools)):
+for i in range(n_blocks):
     MM_ts = MM_ts + [["A2", wells96[i], 9200]]
 
 
-EchocsvFile = projectName + "_EchoTransfers"+".csv"
+EchocsvFile = "1_" + projectName + "_EchoOligoTransfers"+".csv"
 
 with open(EchocsvFile, "w", newline="") as outputCSV:
     echoWriter = csv.writer(outputCSV, delimiter=";")
@@ -104,14 +105,27 @@ with open(EchocsvFile, "w", newline="") as outputCSV:
         echoWriter.writerow(t)
 
 
-echoMMcsvFile = projectName + "_MasterMix.csv"
+echoMMcsvFile = "2_" + projectName + "_MasterMix.csv"
 with open(echoMMcsvFile, "w", newline="") as MMOutputCSV:
     echoMMWriter = csv.writer(MMOutputCSV, delimiter=";")
     for MM_T in MM_ts:
         echoMMWriter.writerow(MM_T)
 
-print("Writing OT Protocol")
+print("Writing OT Block PCR and Digestion Protocol")
 
+pcrProt = open("BlockPCR_ExoDigestion_Template.txt", "r")
+new_pcrProt_name = "3_" + projectName + "_BlockPCRDig.py"
+new_pcrProt = open(new_pcrProt_name, "w")
+
+new_pcrProt.write("n_reactions = "  + str(n_blocks))
+new_pcrProt.write("\n")
+
+for line in pcrProt:
+    new_pcrProt.write(line)
+new_pcrProt.close()
+
+
+print("Writing OT OEPCR Protocol")
 b1 = [i for i in range(len(b1pools))]
 
 b2 = [i + len(b1pools) for i in range(len(b2pools))]
@@ -125,7 +139,7 @@ for i in itertools.product(*b_1_2):
 
 prot = open("OEPCR_Template.txt", "r")
 
-new_prot_name = projectName + "_OEPCR_OT.py"
+new_prot_name = "4_" + projectName + "_OEPCR_OT.py"
 
 new_prot = open(new_prot_name, "w")
 
