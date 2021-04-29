@@ -93,7 +93,7 @@ MM_ts = [[ "SrcWell"," DstWell", "Vol"]]
 for i in range(len(b1pools + b2pools)):
     MM_ts = MM_ts + [["A1", wells96[i], 12500]]
 for i in range(len(b1pools + b2pools)):
-    MM_ts = MM_ts + [["A2", wells96[i], 9500]]
+    MM_ts = MM_ts + [["A2", wells96[i], 9200]]
 
 
 EchocsvFile = projectName + "_EchoTransfers"+".csv"
