@@ -1,14 +1,10 @@
-import csv, itertools, string, sys
+import csv, itertools, string
 
-
-
-projectName = "MAusTest"
-
+projectName = input("Enter name for project")
+csv_file = input("Enter CSV file name (without extension)") + ".csv"
 
 print("Writing Echo CSV_1")
 #Read csv and generate list of first column
-csv_file = "exampleCSV.csv"
-
 
 with open(csv_file, "r") as f:
     csv_read = csv.reader(f, delimiter=";")
@@ -44,6 +40,11 @@ wells96 = []
 for col in cols:
     for letter in rows:
         wells96.append(letter + str(col))
+
+lowEvapWells= [x + i for x in range(18, 75, 8) for i in (range(4))]
+lowEvap96 = [wells96[w] for w in lowEvapWells]
+
+
 
 #define oligo wells by position in 384 well plate
 w = 0
@@ -84,30 +85,31 @@ def get_pool_transfers(pool, d):
         transfers.append(make_transfer_list(ol, d))
     return(transfers)
 
-ts = [[ "SrcWell"," DstWell", "Vol"]]
-for p, w in zip(b1pools + b2pools, wells96):
+ts = [[ "Source Well"," Destination Well", "Transfer Volume"]]
+for p, w in zip(b1pools + b2pools, lowEvap96):
     ts = ts + get_pool_transfers(p, w)
 
 n_blocks = len(b1pools + b2pools)
 
-MM_ts = [[ "SrcWell"," DstWell", "Vol"]]
+MM_ts = [[ "Source Well"," Destination Well", "Transfer Volume"]]
 for i in range(n_blocks):
-    MM_ts = MM_ts + [["A1", wells96[i], 12500]]
+    MM_ts = MM_ts + [["A1", lowEvap96[i], 12500]]
 for i in range(n_blocks):
-    MM_ts = MM_ts + [["A2", wells96[i], 9200]]
+    MM_ts = MM_ts + [["A2", lowEvap96[i], 9200]]
 
 
 EchocsvFile = "1_" + projectName + "_EchoOligoTransfers"+".csv"
 
 with open(EchocsvFile, "w", newline="") as outputCSV:
-    echoWriter = csv.writer(outputCSV, delimiter=";")
+    echoWriter = csv.writer(outputCSV, delimiter=",")
     for t in ts:
         echoWriter.writerow(t)
 
 
 echoMMcsvFile = "2_" + projectName + "_MasterMix.csv"
+
 with open(echoMMcsvFile, "w", newline="") as MMOutputCSV:
-    echoMMWriter = csv.writer(MMOutputCSV, delimiter=";")
+    echoMMWriter = csv.writer(MMOutputCSV, delimiter=",")
     for MM_T in MM_ts:
         echoMMWriter.writerow(MM_T)
 
@@ -117,7 +119,7 @@ pcrProt = open("BlockPCR_ExoDigestion_Template.txt", "r")
 new_pcrProt_name = "3_" + projectName + "_BlockPCRDig.py"
 new_pcrProt = open(new_pcrProt_name, "w")
 
-new_pcrProt.write("n_reactions = "  + str(n_blocks))
+new_pcrProt.write("n_reactions = " + str(n_blocks))
 new_pcrProt.write("\n")
 
 for line in pcrProt:
@@ -137,18 +139,21 @@ for i in itertools.product(*b_1_2):
     block_combs.append(list(i))
 
 
-prot = open("OEPCR_Template.txt", "r")
+oe_pcr_prot = open("OEPCR_Template.txt", "r")
 
-new_prot_name = "4_" + projectName + "_OEPCR_OT.py"
+new_oe_pcr_prot_name = "4_" + projectName + "_OEPCR_OT.py"
 
-new_prot = open(new_prot_name, "w")
+new_oe_pcr_prot = open(new_oe_pcr_prot_name, "w")
 
-new_prot.write("blocks =" + str(b_1_2))
-new_prot.write("\n")
+new_oe_pcr_prot.write("blocks =" + str(block_combs))
+new_oe_pcr_prot.write("\n")
 
-for line in prot:
-    new_prot.write(line)
-new_prot.close()
+for line in oe_pcr_prot:
+    new_oe_pcr_prot.write(line)
+new_oe_pcr_prot.close()
+
+print("Writing Plating Protocol")
 
 
+print("Setup Complete - Proceed to Wet Lab")
 
