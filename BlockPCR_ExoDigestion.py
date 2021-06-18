@@ -1,7 +1,7 @@
 n_reactions=8
-
+lowEvapWells= [x + i for x in range(18, 75, 8) for i in (range(4))]
 metadata = {
-    'protocolName': 'BlockPCR and iIgestion',
+    'protocolName': 'BlockPCR and Digestion',
     'author': 'Opentrons <protocols@opentrons.com>',
     'source': 'Protocol Library',
     'apiLevel': '2.8'
@@ -63,12 +63,12 @@ def run(protocol):
 
     # Final extension
     tc_mod.set_block_temperature(72, hold_time_seconds=300)
-    tc_mod.set_block_temperature(4)
+    tc_mod.set_block_temperature(10)
 
     tc_mod.open_lid()
     protocol.pause("Remove Seal")
 
-    for i in range(n_reactions):
+    for i in lowEvapWells[0:n_reactions]:
         p300Single.transfer(50, waterExo, PCR_plate.wells()[i], mix_after=(2,75), touch_tip=True)
 
     protocol.pause("Add seal")
@@ -77,8 +77,8 @@ def run(protocol):
 
     tc_mod.close_lid()
     tc_mod.set_lid_temperature(98)
-    tc_mod.set_block_temperature(37, hold_time_minutes=15)
-    tc_mod.set_block_temperature(80, hold_time_minutes=15)
+    tc_mod.set_block_temperature(37, hold_time_minutes=20)
+    tc_mod.set_block_temperature(80, hold_time_minutes=20)
     tc_mod.set_block_temperature(10)
 
     tc_mod.open_lid()
