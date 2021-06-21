@@ -1,29 +1,13 @@
-n_reactions=8
+n_blocks=8
+
 lowEvapWells= [x + i for x in range(18, 75, 8) for i in (range(4))]
+
 metadata = {
     'protocolName': 'BlockPCR and Digestion',
     'author': 'Opentrons <protocols@opentrons.com>',
     'source': 'Protocol Library',
     'apiLevel': '2.8'
 }
-
-# Set initial denaturing
-init_temp = 98
-init_time = 60
-
-# set Denaturing
-d_temp = 98
-d_time = 15
-
-# Set annealing
-a_temp = 52
-a_time = 15
-
-# Set Extension
-e_temp = 72
-e_time = 30
-
-
 
 def run(protocol):
     # Load Tips
@@ -45,18 +29,17 @@ def run(protocol):
     rack = protocol.load_labware("opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap", "5")
     waterExo = rack.wells()[0]
 
-
     tc_mod.set_lid_temperature(110)
     tc_mod.close_lid()
 
     # Initial denaturing
-    tc_mod.set_block_temperature(init_temp, hold_time_seconds=init_time)
+    tc_mod.set_block_temperature(98, hold_time_seconds=30)
 
     # Set Profile
     profile = [
-        {'temperature': d_temp, 'hold_time_seconds': d_time},
-        {'temperature': a_temp, 'hold_time_seconds': a_time},
-        {'temperature': e_temp, 'hold_time_seconds': e_time}
+        {'temperature': 98, 'hold_time_seconds': 15},
+        {'temperature': 52, 'hold_time_seconds': 15},
+        {'temperature': 72, 'hold_time_seconds': 30}
     ]
 
     tc_mod.execute_profile(steps=profile, repetitions=25, block_max_volume=25)
@@ -66,12 +49,9 @@ def run(protocol):
     tc_mod.set_block_temperature(10)
 
     tc_mod.open_lid()
-    protocol.pause("Remove Seal")
 
-    for i in lowEvapWells[0:n_reactions]:
+    for i in lowEvapWells[0:n_blocks]:
         p300Single.transfer(50, waterExo, PCR_plate.wells()[i], mix_after=(2,75), touch_tip=True)
-
-    protocol.pause("Add seal")
 
     #Exonuclese 1 Digestion
 
