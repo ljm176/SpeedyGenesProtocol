@@ -127,19 +127,22 @@ for line in pcrProt:
 new_pcrProt.close()
 
 
-print("Writing OT OEPCR Protocol")
+print("Writing OT Full Gene Protocol")
 b1 = [i for i in range(len(b1pools))]
-
 b2 = [i + len(b1pools) for i in range(len(b2pools))]
 
-b_1_2 = [b1] + [b2]
+#Convert to low evap positions
+b1_lowEvap = [lowEvapWells[x] for x in b1]
+b2_lowEvap = [lowEvapWells[x] for x in b2]
+
+b_1_2 = [b1_lowEvap] + [b2_lowEvap]
 
 block_combs = []
 for i in itertools.product(*b_1_2):
     block_combs.append(list(i))
 
 
-oe_pcr_prot = open("OEPCR_Template.txt", "r")
+oe_pcr_prot = open("FullBlockSynthesis_Template.txt", "r")
 
 new_oe_pcr_prot_name = "4_" + projectName + "_OEPCR_OT.py"
 
