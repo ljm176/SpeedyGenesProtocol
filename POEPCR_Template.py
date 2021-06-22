@@ -81,8 +81,8 @@ def run(protocol):
     protocol.comment("Transforming")
 
     p300Single.pick_up_tip()
-    for i in range(nSamples):
-        p300Single.transfer(500, baylyi,deepWell.wells()[i], new_tip="never")
+    for i in range(nSamples+1):
+        p300Single.transfer(500, baylyi, deepWell.wells()[i], new_tip="never")
     p300Single.drop_tip()
 
     tc_mod.open_lid()
