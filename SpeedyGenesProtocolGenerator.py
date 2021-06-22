@@ -115,11 +115,11 @@ with open(echoMMcsvFile, "w", newline="") as MMOutputCSV:
 
 print("Writing OT Block PCR and Digestion Protocol")
 
-pcrProt = open("BlockPCR_ExoDigestion_Template.txt", "r")
+pcrProt = open("Templates/BlockPCR_ExoDigestion.txt", "r")
 new_pcrProt_name = "3_" + projectName + "_BlockPCRDig.py"
 new_pcrProt = open(new_pcrProt_name, "w")
 
-new_pcrProt.write("n_reactions = " + str(n_blocks))
+new_pcrProt.write("n_blocks = " + str(n_blocks))
 new_pcrProt.write("\n")
 
 for line in pcrProt:
@@ -142,9 +142,9 @@ for i in itertools.product(*b_1_2):
     block_combs.append(list(i))
 
 
-oe_pcr_prot = open("FullBlockSynthesis_Template.txt", "r")
+oe_pcr_prot = open("Templates/FullBlockSynthesis.txt", "r")
 
-new_oe_pcr_prot_name = "4_" + projectName + "_OEPCR_OT.py"
+new_oe_pcr_prot_name = "4_" + projectName + "_FullGene.py"
 
 new_oe_pcr_prot = open(new_oe_pcr_prot_name, "w")
 
@@ -155,8 +155,17 @@ for line in oe_pcr_prot:
     new_oe_pcr_prot.write(line)
 new_oe_pcr_prot.close()
 
-print("Writing Plating Protocol")
 
+print("Writing OE POE-PCR and transformation Protocol")
+poe_PCR_prot = open("Templates/POEPCR.txt", "r")
+newPOE_pcrProt_name = "5_" + projectName + "_POEPCR_Transformation.py"
+newPOE_pcrProt = open(newPOE_pcrProt_name, "w")
+newPOE_pcrProt.write("nSamples = " + str(len(block_combs)))
+newPOE_pcrProt.write("\n")
+
+for line in poe_PCR_prot:
+    newPOE_pcrProt.write(line)
+new_oe_pcr_prot.close()
 
 print("Setup Complete - Proceed to Wet Lab")
 

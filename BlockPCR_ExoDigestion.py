@@ -1,6 +1,4 @@
-n_blocks=8
 
-lowEvapWells= [x + i for x in range(18, 75, 8) for i in (range(4))]
 
 metadata = {
     'protocolName': 'BlockPCR and Digestion',
@@ -8,6 +6,9 @@ metadata = {
     'source': 'Protocol Library',
     'apiLevel': '2.8'
 }
+
+lowEvapWells= [x + i for x in range(18, 75, 8) for i in (range(4))]
+
 
 def run(protocol):
     # Load Tips

@@ -5,9 +5,6 @@ metadata = {
     'apiLevel': '2.8'
     }
 
-from math import ceil
-
-nSamples = 3
 lowEvapWell = [x + i for x in range(18, 75, 8) for i in (range(4))]
 
 def run(protocol):

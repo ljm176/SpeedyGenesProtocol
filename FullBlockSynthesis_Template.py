@@ -1,35 +1,5 @@
-blocks = [[18, 20],
- [18, 21],
- [18, 26],
- [18, 27],
- [18, 28],
- [18, 29],
- [18, 34],
- [18, 35],
- [18, 36],
- [18, 37],
- [18, 42],
- [18, 43],
- [18, 44],
- [18, 45],
- [18, 50],
- [18, 51],
- [19, 20],
- [19, 21],
- [19, 26],
- [19, 27],
- [19, 28],
- [19, 29],
- [19, 34],
- [19, 35],
- [19, 36],
- [19, 37],
- [19, 42],
- [19, 43],
- [19, 44],
- [19, 45],
- [19, 50],
- [19, 51]]
+blocks =[[18, 20], [18, 21], [18, 26], [18, 27], [18, 28], [18, 29], [18, 34], [18, 35], [18, 36], [18, 37], [18, 42], [18, 43], [18, 44], [18, 45], [18, 50], [18, 51], [19, 20], [19, 21], [19, 26], [19, 27], [19, 28], [19, 29], [19, 34], [19, 35], [19, 36], [19, 37], [19, 42], [19, 43], [19, 44], [19, 45], [19, 50], [19, 51]]
+
 metadata = {
     'protocolName': 'SpeedyGenes Full Block Synthesis',
     'author': 'Lachlan Munro',
@@ -139,9 +109,8 @@ def run(protocol):
     tc_mod.set_block_temperature(72, hold_time_seconds=300, block_max_volume=25)
 
     tc_mod.set_block_temperature(4)
-
-    for i in b1_positions:
-        p300Single.transfer(50, waterExo, PCR_plate.wells()[i], mix_after=(2,75), touch_tip=True)
+    tc_mod.open_lid()
+    p300Single.transfer(50, waterExo, pcrWells, mix_after=(2,75), touch_tip=True)
 
     #Exonuclese 1 Digestion
 
