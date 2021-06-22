@@ -62,7 +62,8 @@ def run(protocol):
     reagents = temp_block.load_labware("opentrons_24_aluminumblock_nest_1.5ml_snapcap", label="Reagents")
     # Load 2x Mastermix with primers added
     mastermix = reagents["A1"]
-    exo_water = reagents["A2"]
+    waterExo = reagents["A2"]
+    mastermix_POEPCR = reagents["A3"]
 
     # Load fragment plates
     block_plate = protocol.load_labware("nest_96_wellplate_100ul_pcr_full_skirt", location=2, label="Blocks")
@@ -138,3 +139,20 @@ def run(protocol):
     tc_mod.set_block_temperature(72, hold_time_seconds=300, block_max_volume=25)
 
     tc_mod.set_block_temperature(4)
+
+    for i in b1_positions:
+        p300Single.transfer(50, waterExo, PCR_plate.wells()[i], mix_after=(2,75), touch_tip=True)
+
+    #Exonuclese 1 Digestion
+
+    tc_mod.close_lid()
+    tc_mod.set_lid_temperature(98)
+    tc_mod.set_block_temperature(37, hold_time_minutes=20)
+    tc_mod.set_block_temperature(80, hold_time_minutes=20)
+    tc_mod.set_block_temperature(10)
+
+    protocol.comment("Full Gene synthesis complete. Click proceed to open lid")
+    tc_mod.open_lid()
+
+
+
