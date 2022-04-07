@@ -56,8 +56,8 @@ for oligo_list in l:
         w+=1
 
 #Define blocks (6 and 7 oligos per block) This might need to be modified.
-block1 = oligo_wells[0:6]
-block2 = oligo_wells[6:15]
+block1 = oligo_wells[0:12]
+block2 = oligo_wells[12:23]
 
 def get_pools(block):
     pools = list(itertools.product(*block))
